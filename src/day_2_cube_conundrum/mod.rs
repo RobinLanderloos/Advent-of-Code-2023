@@ -70,9 +70,9 @@ impl Game {
             greens_pulled: Vec::new(),
             blues_pulled: Vec::new(),
             reds_pulled: Vec::new(),
-            min_green: 0,
-            min_blue: 0,
-            min_red: 0,
+            min_green: 1,
+            min_blue: 1,
+            min_red: 1,
         };
     }
 
