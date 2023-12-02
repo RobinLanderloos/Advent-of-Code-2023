@@ -30,13 +30,16 @@ pub fn solve(path: String, red_cubes_count: i32, green_cubes_count: i32, blue_cu
     }
 
     let mut possible_id_sum = 0;
+    let mut sum_of_powers = 0;
     for game in games {
         if game.is_possible(green_cubes_count, blue_cubes_count, red_cubes_count) {
             possible_id_sum += game.id;
         }
+        sum_of_powers += game.get_power_of_minimum_pulls();
     }
 
     println!("Possible id sum: {}", possible_id_sum);
+    println!("Sum of powers: {}", sum_of_powers);
 }
 
 #[derive(Debug)]
@@ -45,6 +48,9 @@ pub struct Game {
     green_count: i32,
     blue_count: i32,
     red_count: i32,
+    greens_pulled: Vec<i32>,
+    blues_pulled: Vec<i32>,
+    reds_pulled: Vec<i32>,
 }
 
 impl Game {
@@ -55,14 +61,28 @@ impl Game {
             red_count: 0,
             blue_count: 0,
             green_count: 0,
+            greens_pulled: Vec::new(),
+            blues_pulled: Vec::new(),
+            reds_pulled: Vec::new(),
         };
     }
 
     /// Adds a game subset to the game
     pub fn add_game_subset(&mut self, game_subset: GameSubset) {
         self.green_count = Game::set_if_higher(self.green_count, game_subset.green_count);
+        if game_subset.green_count > 0 {
+            self.greens_pulled.push(game_subset.green_count);
+        }
+
         self.blue_count = Game::set_if_higher(self.blue_count, game_subset.blue_count);
+        if game_subset.blue_count > 0 {
+            self.blues_pulled.push(game_subset.blue_count);
+        }
+
         self.red_count = Game::set_if_higher(self.red_count, game_subset.red_count);
+        if game_subset.red_count > 0 {
+            self.reds_pulled.push(game_subset.red_count);
+        }
     }
 
     /// Returns true if the game is possible, false otherwise
@@ -92,6 +112,21 @@ impl Game {
         } else {
             return current_value;
         }
+    }
+
+    pub fn get_power_of_minimum_pulls(&self) -> i32 {
+        let highest_red = self.reds_pulled.iter().max().unwrap();
+        let highest_blue = self.blues_pulled.iter().max().unwrap();
+        let highest_green = self.greens_pulled.iter().max().unwrap();
+
+        let power = highest_red * highest_blue * highest_green;
+
+        println!(
+            "Game {} power: {} ({} * {} * {})",
+            self.id, power, highest_red, highest_blue, highest_green
+        );
+
+        return power;
     }
 }
 

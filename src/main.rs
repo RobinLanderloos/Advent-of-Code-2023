@@ -15,7 +15,7 @@ fn day_1_trebuchet() {
 #[allow(dead_code)]
 fn day_2_cube_conundrum() {
     day_2_cube_conundrum::solve(
-        "src/day_2_cube_conundrum/puzzle_input.txt".to_string(),
+        "src/day_2_cube_conundrum/puzzle_p2_input.txt".to_string(),
         12,
         13,
         14,
