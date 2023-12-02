@@ -1,6 +1,4 @@
-use std::fs::File;
-use std::io::{self, BufRead};
-use std::path::Path;
+use super::shared::file_processing::read_lines;
 
 pub struct PuzzleInputHandler {
     path: String,
@@ -15,7 +13,7 @@ impl PuzzleInputHandler {
     /// Returns the calibration from the puzzle input
     pub fn get_calibration_from_puzzle_input(&self) -> i32 {
         let mut calibration: i32 = 0;
-        match PuzzleInputHandler::read_lines(self.path.to_string()) {
+        match read_lines(self.path.to_string()) {
             Ok(lines) => {
                 for line in lines {
                     match line {
@@ -64,15 +62,5 @@ impl PuzzleInputHandler {
 
         // No need for error handling as we know the string is a number
         return combined.parse::<i32>().unwrap();
-    }
-
-    // https://doc.rust-lang.org/rust-by-example/std_misc/file/read_lines.html
-    /// Returns the lines from the given file
-    fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-    where
-        P: AsRef<Path>,
-    {
-        let file = File::open(filename)?;
-        Ok(io::BufReader::new(file).lines())
     }
 }
