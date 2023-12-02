@@ -31,18 +31,15 @@ pub fn solve(path: String, red_cubes_count: i32, green_cubes_count: i32, blue_cu
 
     let mut possible_id_sum = 0;
     let mut sum_of_powers = 0;
-    let mut sum_of_powers_optimized = 0;
     for game in games {
         if game.is_possible(green_cubes_count, blue_cubes_count, red_cubes_count) {
             possible_id_sum += game.id;
         }
         sum_of_powers += game.get_power_of_minimum_pulls();
-        sum_of_powers_optimized += game.get_power_of_minimum_pulls_optimized();
     }
 
     println!("Possible id sum: {}", possible_id_sum);
     println!("Sum of powers: {}", sum_of_powers);
-    println!("Sum of powers (optimized): {}", sum_of_powers_optimized);
 }
 
 #[derive(Debug)]
@@ -51,9 +48,6 @@ pub struct Game {
     green_count: i32,
     blue_count: i32,
     red_count: i32,
-    reds_pulled: Vec<i32>,
-    greens_pulled: Vec<i32>,
-    blues_pulled: Vec<i32>,
     min_red: i32,
     min_green: i32,
     min_blue: i32,
@@ -67,9 +61,6 @@ impl Game {
             red_count: 0,
             blue_count: 0,
             green_count: 0,
-            greens_pulled: Vec::new(),
-            blues_pulled: Vec::new(),
-            reds_pulled: Vec::new(),
             min_green: 1,
             min_blue: 1,
             min_red: 1,
@@ -80,21 +71,12 @@ impl Game {
     pub fn add_game_subset(&mut self, game_subset: GameSubset) {
         self.green_count = Game::set_if_higher(self.green_count, game_subset.green_count);
         self.min_green = Game::set_lowest_possible(self.min_green, game_subset.green_count);
-        if game_subset.green_count > 0 {
-            self.greens_pulled.push(game_subset.green_count);
-        }
 
         self.blue_count = Game::set_if_higher(self.blue_count, game_subset.blue_count);
         self.min_blue = Game::set_lowest_possible(self.min_blue, game_subset.blue_count);
-        if game_subset.blue_count > 0 {
-            self.blues_pulled.push(game_subset.blue_count);
-        }
 
         self.red_count = Game::set_if_higher(self.red_count, game_subset.red_count);
         self.min_red = Game::set_lowest_possible(self.min_red, game_subset.red_count);
-        if game_subset.red_count > 0 {
-            self.reds_pulled.push(game_subset.red_count);
-        }
     }
 
     /// Returns true if the game is possible, false otherwise
@@ -139,21 +121,6 @@ impl Game {
     }
 
     pub fn get_power_of_minimum_pulls(&self) -> i32 {
-        let highest_red = self.reds_pulled.iter().max().unwrap();
-        let highest_blue = self.blues_pulled.iter().max().unwrap();
-        let highest_green = self.greens_pulled.iter().max().unwrap();
-
-        let power = highest_red * highest_blue * highest_green;
-
-        println!(
-            "Game {} power: {} ({} * {} * {})",
-            self.id, power, highest_red, highest_green, highest_blue
-        );
-
-        return power;
-    }
-
-    pub fn get_power_of_minimum_pulls_optimized(&self) -> i32 {
         let power = self.min_red * self.min_blue * self.min_green;
         println!(
             "Game {} power: {} ({} * {} * {})",
