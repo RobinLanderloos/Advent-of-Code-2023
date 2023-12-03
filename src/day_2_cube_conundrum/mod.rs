@@ -1,12 +1,12 @@
 use super::shared::file_processing::read_lines;
 
 /// Solves the puzzle using the input at the given path
-pub fn solve(path: String, red_cubes_count: i32, green_cubes_count: i32, blue_cubes_count: i32) {
+pub fn solve(path: String, red_cubes_count: i32, green_cubes_count: i32, blue_cubes_count: i32) -> i32 {
     let lines = read_lines(path);
 
     if lines.is_err() {
         println!("Error reading file: {}", lines.err().unwrap());
-        return;
+        return 0;
     }
 
     let mut games: Vec<Game> = Vec::new();
@@ -39,7 +39,8 @@ pub fn solve(path: String, red_cubes_count: i32, green_cubes_count: i32, blue_cu
     }
 
     println!("Possible id sum: {}", possible_id_sum);
-    println!("Sum of powers: {}", sum_of_powers);
+
+    return sum_of_powers;
 }
 
 #[derive(Debug)]
