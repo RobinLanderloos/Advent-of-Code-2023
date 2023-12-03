@@ -1,8 +1,7 @@
 use super::shared::file_processing::read_lines;
 
-pub fn solve(path: String) {
-    let calibration = get_calibration_from_puzzle_input(path);
-    println!("Calibration: {}", calibration);
+pub fn solve(path: String) -> i32 {
+    return get_calibration_from_puzzle_input(path);
 }
 
 /// Returns the calibration from the puzzle input
