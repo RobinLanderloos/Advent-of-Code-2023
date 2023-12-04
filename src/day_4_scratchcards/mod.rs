@@ -5,6 +5,8 @@ pub fn solve(path: String) -> String {
     let mut total_winnings = 0;
     for line in input.lines() {
         let card = Card::new(line);
+        // First store cards in a list
+        // Then iterate over every card and depending on winnings_power, add copies of the next x amount of cards to the list
         total_winnings += card.get_winnings();
 
         println!();
@@ -51,7 +53,7 @@ impl Card {
         }
     }
 
-    pub fn get_winnings(&self) -> u32 {
+    pub fn get_winnings(&self) -> (u32, u32) {
         let mut winnings_power = 0;
         let mut winnings = 0;
 
@@ -69,6 +71,6 @@ impl Card {
         }
 
         println!("Winnings: {}", winnings);
-        return winnings;
+        return (winnings, winnings_power);
     }
 }
