@@ -102,7 +102,7 @@ fn char_at(grid: &Vec<Vec<char>>, row: i32, column: i32) -> char {
     let rows: i32 = grid[row as usize].len() as i32;
     let columns: i32 = grid.len() as i32;
 
-    if (column >= 0 && column < columns && row >= 0 && row < rows) {
+    if column >= 0 && column < columns && row >= 0 && row < rows {
         return grid[row as usize][column as usize];
     }
 
