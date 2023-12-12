@@ -157,7 +157,6 @@ fn get_seeds_from_line(seeds: &mut Vec<u64>, line: &str) -> Result<bool, InputPa
     let mut index = 1u32;
     let mut seed_number = 0u64;
 
-    // let mut seed_ranges: Vec<SeedRange> = Vec::new();
     for seed_line_number in seeds_line_numbers {
         let parsed_number = seed_line_number.parse::<u64>()?;
 

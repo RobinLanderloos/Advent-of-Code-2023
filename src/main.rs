@@ -3,6 +3,7 @@ mod day_2_cube_conundrum;
 mod day_3_gear_ratios;
 mod day_4_scratchcards;
 mod day_5_if_you_give_a_seed_a_fertilizer;
+mod day_6_wait_for_it;
 mod shared;
 
 fn main() {
@@ -10,7 +11,17 @@ fn main() {
     // day_2_cube_conundrum();
     // day_3_gear_ratios();
     // day_4_scratchcards();
-    day_5_if_you_give_a_seed_a_fertilizer();
+    // day_5_if_you_give_a_seed_a_fertilizer();
+
+    day_6_wait_for_it();
+}
+
+#[allow(dead_code)]
+fn day_6_wait_for_it() {
+    println!(
+        "{}",
+        day_6_wait_for_it::solve("src/day_6_wait_for_it/input_example.txt".to_string())
+    );
 }
 
 #[allow(dead_code)]
