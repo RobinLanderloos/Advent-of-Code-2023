@@ -12,15 +12,32 @@ const HUMIDITY_TO_LOCATION: &str = "humidity-to-location";
 pub fn solve(path: String) -> String {
     let mut input_string = std::fs::read_to_string(path).unwrap();
     input_string = input_string.add("\r\n"); // Add a newline to the end of the file to make parsing easier
-    let parse_result = parse_input(&input_string);
+    let mut seeds: Vec<u64> = Vec::new();
+    let parse_result = parse_input(&mut seeds, &input_string);
 
     match parse_result {
         Ok(result) => {
             let mut lowest_location = u64::MAX;
-            for seed in result.seeds.clone() {
+            let mut index = 0u64;
+            let seeds_length = seeds.len();
+
+            // This loop needs optimizing.. eventually
+            // Probably using a binary search
+
+            for seed in seeds {
                 let location = result.find_location(seed);
                 if location < lowest_location {
                     lowest_location = location;
+                }
+                index += 1;
+
+                if index % 1000000 == 0 {
+                    println!(
+                        "Processed {} seeds of {}, which is {}%",
+                        index,
+                        seeds_length,
+                        (index as f64 / seeds_length as f64) * 100.0
+                    );
                 }
             }
 
@@ -32,8 +49,7 @@ pub fn solve(path: String) -> String {
     }
 }
 
-fn parse_input(input: &String) -> Result<InputParseResult, InputParseError> {
-    let seeds: Vec<u64>;
+fn parse_input(seeds: &mut Vec<u64>, input: &String) -> Result<InputParseResult, InputParseError> {
     let mut seed_to_soil: Vec<MapDefinition> = Vec::new();
     let mut soil_to_fertilizer: Vec<MapDefinition> = Vec::new();
     let mut fertilizer_to_water: Vec<MapDefinition> = Vec::new();
@@ -46,7 +62,7 @@ fn parse_input(input: &String) -> Result<InputParseResult, InputParseError> {
     let mut lines = input.split("\r\n");
 
     // The first line should always contain the seeds
-    seeds = get_seeds_from_line(lines.next().unwrap())?;
+    get_seeds_from_line(seeds, lines.next().unwrap())?;
 
     let mut processing_map = false;
     let mut current_map: String;
@@ -86,7 +102,6 @@ fn parse_input(input: &String) -> Result<InputParseResult, InputParseError> {
     }
 
     let result: InputParseResult = InputParseResult {
-        seeds,
         seed_to_soil,
         soil_to_fertilizer,
         fertilizer_to_water,
@@ -120,8 +135,7 @@ fn parse_map_definition_from_line(line: &str) -> Result<MapDefinition, InputPars
     return Ok(map_definition);
 }
 
-fn get_seeds_from_line(line: &str) -> Result<Vec<u64>, InputParseError> {
-    let mut seeds_result: Vec<u64> = Vec::new();
+fn get_seeds_from_line(seeds: &mut Vec<u64>, line: &str) -> Result<bool, InputParseError> {
     let seeds_line_split = line.split(": ").collect::<Vec<&str>>();
 
     if seeds_line_split.len() != 2 {
@@ -130,29 +144,59 @@ fn get_seeds_from_line(line: &str) -> Result<Vec<u64>, InputParseError> {
         )));
     }
 
-    let seeds = seeds_line_split[1].split(" ").collect::<Vec<&str>>();
+    let seeds_line_numbers = seeds_line_split[1].split(" ").collect::<Vec<&str>>();
 
-    if seeds.len() < 1 {
+    println!("Seeds line numbers: {:?}", seeds_line_numbers);
+
+    if seeds_line_numbers.len() < 1 {
         return Err(InputParseError::InvalidSeeds(String::from(
             "No seeds found on line",
         )));
     }
 
-    for seed in seeds {
-        let parsed_seed = seed.parse::<u64>();
-        if parsed_seed.is_err() {
-            return Err(InputParseError::InvalidSeeds(String::from(
-                "An error occurred while parsing a seed",
-            )));
+    let mut index = 1u32;
+    let mut seed_number = 0u64;
+
+    // let mut seed_ranges: Vec<SeedRange> = Vec::new();
+    for seed_line_number in seeds_line_numbers {
+        let parsed_number = seed_line_number.parse::<u64>()?;
+
+        // We have reached a range number
+        if index % 2 == 0 {
+            println!(
+                "Processing seeds from {} to {}",
+                seed_number,
+                seed_number + parsed_number
+            );
+            for i in seed_number..seed_number + parsed_number {
+                seeds.push(i);
+            }
+        } else {
+            // We have reached a seed (start) number
+            seed_number = parsed_number;
         }
-        seeds_result.push(parsed_seed.unwrap());
+
+        index += 1;
     }
 
-    return Ok(seeds_result);
+    return Ok(true);
+}
+
+struct SeedRange {
+    start: u64,
+    end: u64,
+}
+
+impl SeedRange {
+    pub fn new(start: u64, range: u64) -> Self {
+        Self {
+            start,
+            end: start + range,
+        }
+    }
 }
 
 struct InputParseResult {
-    seeds: Vec<u64>,
     seed_to_soil: Vec<MapDefinition>,
     soil_to_fertilizer: Vec<MapDefinition>,
     fertilizer_to_water: Vec<MapDefinition>,
@@ -212,7 +256,6 @@ impl InputParseResult {
 
 impl fmt::Display for InputParseResult {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Seeds: {:?}\n", self.seeds)?;
         write!(f, "Seed to soil: {:?}\n", self.seed_to_soil)?;
         write!(f, "Soil to fertilizer: {:?}\n", self.soil_to_fertilizer)?;
         write!(f, "Fertilizer to water: {:?}\n", self.fertilizer_to_water)?;
