@@ -1,4 +1,3 @@
-
 pub fn solve(path: String) -> String {
     let input = std::fs::read_to_string(path).expect("Unable to read file");
 
@@ -7,7 +6,7 @@ pub fn solve(path: String) -> String {
         let card = Card::new(line);
         // First store cards in a list
         // Then iterate over every card and depending on winnings_power, add copies of the next x amount of cards to the list
-        total_winnings += card.get_winnings();
+        total_winnings += card.get_winnings().0;
 
         println!();
     }
@@ -25,7 +24,6 @@ struct Card {
 }
 
 impl Card {
-
     /// Parses a line of text into a Card struct
     /// The line must be in the following format "Card n: n n n n n | x x x x x" where n is a number on the card and x is a scratched number
     pub fn new(line: &str) -> Card {
@@ -48,9 +46,15 @@ impl Card {
 
         return Card {
             card_number,
-            winning_numbers: numbers.iter().map(|x| x.parse::<u32>().expect("Unable to parse winning number")).collect(),
-            scratched_numbers: scratched.iter().map(|x| x.parse::<u32>().expect("Unable to parse winning number")).collect(),
-        }
+            winning_numbers: numbers
+                .iter()
+                .map(|x| x.parse::<u32>().expect("Unable to parse winning number"))
+                .collect(),
+            scratched_numbers: scratched
+                .iter()
+                .map(|x| x.parse::<u32>().expect("Unable to parse winning number"))
+                .collect(),
+        };
     }
 
     pub fn get_winnings(&self) -> (u32, u32) {
