@@ -1,26 +1,25 @@
 use std::num::ParseIntError;
 
 pub fn solve(input_path: String) -> String {
-    let input = std::fs::read_to_string(input_path);
+    match std::fs::read_to_string(input_path) {
+        Ok(input) => {
+            let race = get_race_from_input(&input);
 
-    if input.is_err() {
-        return "Error reading input file".to_string();
-    }
+            match race {
+                Ok(race) => {
+                    println!("{:?}", race);
 
-    let input = input.unwrap();
+                    let result = get_possible_race_beat_amount(&race);
 
-    let race = get_race_from_input(&input);
-
-    match race {
-        Ok(race) => {
-            println!("{:?}", race);
-
-            let result = get_possible_race_beat_amount(&race);
-
-            return format!("Result: {}", result);
+                    format!("Result: {}", result)
+                }
+                Err(err) => {
+                    format!("Error parsing races: {}", err)
+                }
+            }
         }
         Err(err) => {
-            return format!("Error parsing races: {}", err);
+            format!("Error reading input file: {}", err)
         }
     }
 }
@@ -63,6 +62,7 @@ fn get_parsed_number_for_race(string: &str) -> Result<u64, ParseIntError> {
 }
 
 /// Part one - multiple races
+#[allow(dead_code)]
 fn get_races_from_input(input: &String) -> Result<Vec<Race>, ParseIntError> {
     let lines = input.lines().collect::<Vec<&str>>();
     let times_line: Vec<&str> = lines[0].split(":").collect();
@@ -102,6 +102,8 @@ impl Race {
     fn get_beating_results(&self) -> Vec<u64> {
         let mut results: Vec<u64> = Vec::new();
 
+        // We exclude 0 and the last value because if you hold the button for 0 seconds, you won't gain any speed
+        // And if you hold for the whole duration of the race, you won't even start before the race ends
         for index in 1..self.time_in_ms {
             let speed = index * Self::SPEED_PER_MM_PER_MS_BUTTON_HELD;
             let remaining_time = self.time_in_ms - index;
