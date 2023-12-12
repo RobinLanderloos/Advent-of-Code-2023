@@ -1,4 +1,4 @@
-use std::num::{ParseFloatError, ParseIntError};
+use std::num::ParseIntError;
 
 pub fn solve(input_path: String) -> String {
     let input = std::fs::read_to_string(input_path);
@@ -9,30 +9,61 @@ pub fn solve(input_path: String) -> String {
 
     let input = input.unwrap();
 
-    let races = get_races_from_input(input);
+    let race = get_race_from_input(&input);
 
-    if races.is_err() {
-        return format!("Error parsing races: {}", races.err().unwrap());
+    match race {
+        Ok(race) => {
+            println!("{:?}", race);
+
+            let result = get_possible_race_beat_amount(&race);
+
+            return format!("Result: {}", result);
+        }
+        Err(err) => {
+            return format!("Error parsing races: {}", err);
+        }
     }
-
-    let races = races.unwrap();
-
-    let result = get_possible_race_beat_amount(&races);
-
-    return format!("Result: {}", result);
 }
 
-fn get_possible_race_beat_amount(races: &Vec<Race>) -> u64 {
+fn get_possible_race_beat_amount(race: &Race) -> u64 {
+    race.get_beating_results().len() as u64
+}
+
+#[allow(dead_code)]
+fn get_possible_races_beat_amount(races: &Vec<Race>) -> u64 {
     let mut result: u64 = 1;
 
     for race in races {
-        result *= race.get_results().len() as u64;
+        result *= race.get_beating_results().len() as u64;
     }
 
     return result;
 }
 
-fn get_races_from_input(input: String) -> Result<Vec<Race>, ParseIntError> {
+/// Part two - only one race
+fn get_race_from_input(input: &String) -> Result<Race, ParseIntError> {
+    let lines = input.lines().collect::<Vec<&str>>();
+    let times_line: Vec<&str> = lines[0].split(":").collect();
+    let distances_line: Vec<&str> = lines[1].split(":").collect();
+
+    let time = get_parsed_number_for_race(times_line[1])?;
+    let distance = get_parsed_number_for_race(distances_line[1])?;
+
+    return Ok(Race::new(time, distance));
+}
+
+fn get_parsed_number_for_race(string: &str) -> Result<u64, ParseIntError> {
+    let parse_result = string
+        .split_whitespace()
+        .collect::<Vec<&str>>()
+        .join("")
+        .parse::<u64>()?;
+
+    Ok(parse_result)
+}
+
+/// Part one - multiple races
+fn get_races_from_input(input: &String) -> Result<Vec<Race>, ParseIntError> {
     let lines = input.lines().collect::<Vec<&str>>();
     let times_line: Vec<&str> = lines[0].split(":").collect();
     let distances_line: Vec<&str> = lines[1].split(":").collect();
@@ -68,7 +99,7 @@ impl Race {
         }
     }
 
-    fn get_results(&self) -> Vec<u64> {
+    fn get_beating_results(&self) -> Vec<u64> {
         let mut results: Vec<u64> = Vec::new();
 
         for index in 1..self.time_in_ms {

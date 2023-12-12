@@ -20,7 +20,7 @@ fn main() {
 fn day_6_wait_for_it() {
     println!(
         "{}",
-        day_6_wait_for_it::solve("src/day_6_wait_for_it/input_example.txt".to_string())
+        day_6_wait_for_it::solve("src/day_6_wait_for_it/input.txt".to_string())
     );
 }
 
