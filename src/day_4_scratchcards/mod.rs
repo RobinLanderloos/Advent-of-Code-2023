@@ -18,7 +18,6 @@ pub fn solve(path: String) -> String {
 }
 
 struct Card {
-    card_number: u32,
     winning_numbers: Vec<u32>,
     scratched_numbers: Vec<u32>,
 }
@@ -45,7 +44,6 @@ impl Card {
         println!("Scratched: {:?}", scratched);
 
         return Card {
-            card_number,
             winning_numbers: numbers
                 .iter()
                 .map(|x| x.parse::<u32>().expect("Unable to parse winning number"))

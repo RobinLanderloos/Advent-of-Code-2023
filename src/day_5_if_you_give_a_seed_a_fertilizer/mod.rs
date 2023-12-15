@@ -181,20 +181,6 @@ fn get_seeds_from_line(seeds: &mut Vec<u64>, line: &str) -> Result<bool, InputPa
     return Ok(true);
 }
 
-struct SeedRange {
-    start: u64,
-    end: u64,
-}
-
-impl SeedRange {
-    pub fn new(start: u64, range: u64) -> Self {
-        Self {
-            start,
-            end: start + range,
-        }
-    }
-}
-
 struct InputParseResult {
     seed_to_soil: Vec<MapDefinition>,
     soil_to_fertilizer: Vec<MapDefinition>,
