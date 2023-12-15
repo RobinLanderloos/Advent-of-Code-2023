@@ -4,6 +4,7 @@ mod day_3_gear_ratios;
 mod day_4_scratchcards;
 mod day_5_if_you_give_a_seed_a_fertilizer;
 mod day_6_wait_for_it;
+mod day_7_camel_cards;
 mod shared;
 
 fn main() {
@@ -12,8 +13,16 @@ fn main() {
     // day_3_gear_ratios();
     // day_4_scratchcards();
     // day_5_if_you_give_a_seed_a_fertilizer();
+    // day_6_wait_for_it();
 
-    day_6_wait_for_it();
+    day_7_camel_cards();
+}
+
+fn day_7_camel_cards() {
+    println!(
+        "{}",
+        day_7_camel_cards::solve("src/day_7_camel_cards/input.txt")
+    );
 }
 
 #[allow(dead_code)]
