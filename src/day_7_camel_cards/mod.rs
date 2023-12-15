@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, collections::HashMap, num::ParseIntError, ops::Add};
+use std::{cmp::Ordering, collections::HashMap, num::ParseIntError};
 
 static CARDS: phf::Map<char, u8> = phf::phf_map! {
     'A' => 13,
@@ -40,7 +40,7 @@ pub fn solve(input_path: &str) -> String {
 fn get_winnings(hands: &mut Vec<Hand>) -> Vec<u128> {
     let mut winnings: Vec<u128> = Vec::new();
 
-    hands.sort_by(|left, right| sort_hands_weakest_to_strongest(left, right));
+    hands.sort_by(|left, right| left.compare_hand_strength(right));
 
     // Index + 1 will be the "rank" of the hand
     for (index, hand) in hands.iter().enumerate() {
@@ -48,36 +48,6 @@ fn get_winnings(hands: &mut Vec<Hand>) -> Vec<u128> {
     }
 
     return winnings;
-}
-
-fn sort_hands_weakest_to_strongest(left: &Hand, right: &Hand) -> Ordering {
-    let left_combination = left.best_combination as u8;
-    let right_combination = right.best_combination as u8;
-
-    // First we'll check if either of the combinations is greater than the other
-    if left_combination > right_combination {
-        return Ordering::Greater;
-    } else if left_combination < right_combination {
-        return Ordering::Less;
-    }
-
-    // Then we'll go over every character to find the first with a higher value
-    for (index, card) in left.cards.iter().enumerate() {
-        let left_value = CARDS.get(card).unwrap();
-        let right_value = CARDS.get(&right.cards[index]).unwrap();
-
-        if left_value == right_value {
-            continue;
-        }
-
-        if left_value > right_value {
-            return Ordering::Greater;
-        } else if left_value < right_value {
-            return Ordering::Less;
-        }
-    }
-
-    return Ordering::Equal;
 }
 
 fn get_hands_from_input(input: String) -> Result<Vec<Hand>, ParseIntError> {
@@ -111,7 +81,6 @@ struct Hand {
     /// The 5 cards in the hand
     cards: [char; 5],
     /// How often every card appears in the hand
-    cards_map: HashMap<Card, u8>,
     best_combination: Combination,
 }
 
@@ -120,10 +89,39 @@ impl Hand {
         let combination = Combination::get_best_combination(&cards_map);
         Hand {
             cards,
-            cards_map,
             bid,
             best_combination: combination,
         }
+    }
+
+    fn compare_hand_strength(&self, other: &Hand) -> Ordering {
+        let left_combination = self.best_combination as u8;
+        let right_combination = other.best_combination as u8;
+
+        // First we'll check if either of the combinations is greater than the other
+        if left_combination > right_combination {
+            return Ordering::Greater;
+        } else if left_combination < right_combination {
+            return Ordering::Less;
+        }
+
+        // Then we'll go over every character to find the first with a higher value
+        for (index, card) in self.cards.iter().enumerate() {
+            let left_value = CARDS.get(card).unwrap();
+            let right_value = CARDS.get(&other.cards[index]).unwrap();
+
+            if left_value == right_value {
+                continue;
+            }
+
+            if left_value > right_value {
+                return Ordering::Greater;
+            } else if left_value < right_value {
+                return Ordering::Less;
+            }
+        }
+
+        return Ordering::Equal;
     }
 }
 
