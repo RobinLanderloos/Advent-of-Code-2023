@@ -18,35 +18,60 @@ pub fn solve() -> String {
     return "D8".to_string();
 }
 
-fn walk_instructions(parse_result: ParseResult) -> u16 {
+fn walk_instructions(parse_result: ParseResult) -> u128 {
     // We always start with AAA
-    let mut current_node = parse_result.instructions.get("AAA").unwrap();
-    let mut steps = 0u16;
+    let start_nodes = parse_result
+        .instructions
+        .keys()
+        .filter(|x| x.ends_with('A'))
+        .collect::<Vec<&String>>();
+    let mut current_nodes: Vec<&Instruction> = Vec::new();
+
+    for start_node in start_nodes {
+        current_nodes.push(parse_result.instructions.get(start_node).unwrap());
+    }
+
+    println!("Current nodes: {:?}", current_nodes);
+
+    let mut steps = 0u128;
 
     loop {
-        let mut next_instruction: &String;
-
         // We don't want to remove the directions from the original VecDeque, so iterate over it instead
         for (_, direction) in parse_result.directions.iter().enumerate() {
-            println!("Current node: {:?}", current_node);
-            println!("Direction: {}", direction);
+            let mut next_instructions: Vec<&String> = Vec::new();
+            let mut all_end_in_z = true;
 
-            if *direction == 'L' {
-                next_instruction = &current_node.left;
-            } else {
-                next_instruction = &current_node.right;
+            for node in &current_nodes {
+                if *direction == 'L' {
+                    if !node.left.ends_with('Z') {
+                        all_end_in_z = false;
+                    }
+                    next_instructions.push(&node.left);
+                } else {
+                    if !node.right.ends_with('Z') {
+                        all_end_in_z = false;
+                    }
+                    next_instructions.push(&node.right);
+                }
             }
 
-            println!("Next instruction: {}", next_instruction);
             steps += 1;
 
-            // We stop when we find ZZZ
-            if next_instruction == "ZZZ" {
-                println!("Next instruction is {:?}, stopping", next_instruction);
+            if steps % 100000 == 0 {
+                println!("Steps: {}", steps);
+            }
+
+            // We stop when everything ends in Z
+            if all_end_in_z {
+                println!("Found all end points, stopping");
                 return steps;
             }
 
-            current_node = parse_result.instructions.get(next_instruction).unwrap();
+            current_nodes.clear();
+
+            for next_instruction in next_instructions {
+                current_nodes.push(parse_result.instructions.get(next_instruction).unwrap());
+            }
         }
     }
 }
